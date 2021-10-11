@@ -1,6 +1,6 @@
-# AlexNet with cuDNN
+# ResNet with cuDNN
 
-This repository contains an implementation of AlexNet model on ImageNet type of images (227x227x3)
+This repository contains an implementation of ResNet model on ImageNet type of images (224x224x3)
 
 Software versions: 
 * CUDA Toolkit 11.2
@@ -8,7 +8,7 @@ Software versions:
 
 ```sh
 make
-./alexnet
+./resnet
 ```
 
 Change DEBUG in Makefile for debugging purposes.
