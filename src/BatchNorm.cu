@@ -2,7 +2,7 @@
 
 BatchNorm::BatchNorm(cudnnHandle_t handle, float* data): handle(handle), input_data(data) {
     CUDNN_CALL(cudnnCreateTensorDescriptor(&input_descriptor));
-    CUDNN_CALL(cudnnCreateTensorDescriptor(&bnScaleBiasMeanVarDesc));
+    CUDNN_CALL(cudnnCreateTensorDescriptor(&batch_norm_descriptor));
     CUDNN_CALL(cudnnCreateTensorDescriptor(&output_descriptor));
 }
 
@@ -78,8 +78,8 @@ void BatchNorm::Forward() {
         batch_norm_descriptor,/*const cudnnTensorDescriptor_t bnScaleBiasMeanVarDesc*/
         d_bn_scale,
         d_bn_bias,
-        &estimatedMean,
-        &estimatedVariance,
+        &estimated_mean,
+        &estimated_variance,
         epsilon
     );
     cudaEventRecord(stop);
