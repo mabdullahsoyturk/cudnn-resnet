@@ -25,6 +25,8 @@ class BatchNorm {
 
         float* bn_scale;
         float* bn_bias;
+        float* d_bn_scale;
+        float* d_bn_bias;
 
         BatchNorm(cudnnHandle_t handle, float* data);
 
@@ -34,4 +36,5 @@ class BatchNorm {
         void SetOutputDescriptor();
         float* GetOutputData();
         void Forward();
+        void Free();
 };

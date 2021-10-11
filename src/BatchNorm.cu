@@ -8,9 +8,18 @@ BatchNorm::BatchNorm(cudnnHandle_t handle, float* data): handle(handle), input_d
 
 void BatchNorm::SetScaleAndBias() {
     bn_scale = (float*) malloc(input_c * sizeof(float));
+    bn_bias = (float*) malloc(input_c * sizeof(float));
+
     for(int i = 0; i < input_c; i++) {
         bn_scale[i] = 1;
+        bn_bias[i] = 0;
     }
+
+    cudaMemcpy(d_bn_scale, bn_scale, input_c * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_bn_bias, bn_bias, input_c * sizeof(float), cudaMemcpyHostToDevice);
+    
+    free(bn_scale);
+    free(bn_bias);
 }
 
 void BatchNorm::SetInputDescriptor(int N, int C, int H, int W) {
@@ -52,7 +61,12 @@ float* BatchNorm::GetOutputData() {
 }
 
 void BatchNorm::Forward() {
-    //cudnnStatus_t cudnnBatchNormalizationForwardInference(
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    
+    cudaEventRecord(start);
+    cudnnBatchNormalizationForwardInference(
         handle,
         CUDNN_BATCHNORM_SPATIAL, /*cudnnBatchNormMode_t mode*/
         &alpha,
@@ -62,10 +76,22 @@ void BatchNorm::Forward() {
         output_descriptor,/*const cudnnTensorDescriptor_t yDesc*/
         input_data, /*void *y*/
         batch_norm_descriptor,/*const cudnnTensorDescriptor_t bnScaleBiasMeanVarDesc*/
-        /*const void *bnScale*/
-        /*const void *bnBias*/
+        d_bn_scale,
+        d_bn_bias,
         &estimatedMean,
         &estimatedVariance,
-        double epsilon
-    //);
+        epsilon
+    );
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+
+    printf("%f,", milliseconds);
+}
+
+void BatchNorm::Free() {
+    CUDA_CALL(cudaFree(d_bn_scale));
+    CUDA_CALL(cudaFree(d_bn_bias));
 }
