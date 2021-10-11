@@ -9,6 +9,7 @@ class BatchNorm {
     public:
         cudnnHandle_t handle;
         float* input_data;
+        float* output_data;
         
         cudnnTensorDescriptor_t input_descriptor;
         cudnnTensorDescriptor_t batch_norm_descriptor;
@@ -31,9 +32,9 @@ class BatchNorm {
         BatchNorm(cudnnHandle_t handle, float* data);
 
         void SetInputDescriptor(int N, int C, int H, int W);
-        void SetBatchNormDescriptor(int N, int C, int H, int W);
-        void SetScaleAndBias();
+        void SetBatchNormDescriptor();
         void SetOutputDescriptor();
+        void SetScaleAndBias();
         float* GetOutputData();
         void Forward();
         void Free();

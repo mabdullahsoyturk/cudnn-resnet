@@ -1,5 +1,6 @@
 #include "ConvolutionLayer.h"
 #include "PoolingLayer.h"
+#include "BatchNorm.h"
 #include "RELU.h"
 
 #define IMAGE_N 1
@@ -22,31 +23,44 @@ int main() {
         // Convolution Layer 1
         ConvolutionLayer convolution1(cudnn, input_data);
         convolution1.SetInputDescriptor(IMAGE_N, IMAGE_C, IMAGE_H, IMAGE_W);
-        convolution1.SetFilterDescriptor(96, 3, 11, 11);
-        convolution1.SetConvolutionDescriptor(0, 0, 4, 4, 1, 1);
+        convolution1.SetFilterDescriptor(64, 3, 7, 7);
+        convolution1.SetConvolutionDescriptor(3, 3, 2, 2, 1, 1);
         convolution1.SetOutputDescriptor();
         convolution1.SetAlgorithm();
         convolution1.AllocateWorkspace();
         convolution1.AllocateMemory();
         convolution1.Forward();
         convolution1.Free();
+        
+        
+        // Batch Norm Layer 1
+        BatchNorm batch_norm1(cudnn, convolution1.GetOutputData());
+        batch_norm1.SetInputDescriptor(1, 64, 112, 112);
+        batch_norm1.SetBatchNormDescriptor();
+        batch_norm1.SetOutputDescriptor();
+        batch_norm1.SetScaleAndBias();
+        batch_norm1.Forward();
+        batch_norm1.Free();
+        /*
 
-        // ReLU 1
+         // ReLU 1
         RELU relu1(cudnn, convolution1.GetOutputData());
-        relu1.SetInputDescriptor(1, 96, 55, 55);
+        relu1.SetInputDescriptor(1, 64, 112, 112);
         relu1.Forward();
         relu1.Free();
 
-        // Pooling Layer 2
+        // Pooling Layer 1
         PoolingLayer pooling1(cudnn);
-        pooling1.SetInputDescriptor(1, 96, 55, 55);
+        pooling1.SetInputDescriptor(1, 64, 112, 112);
         pooling1.SetInputData(convolution1.GetOutputData());
         pooling1.SetPoolingDescriptor(3, 3, 2, 2);
-        pooling1.SetOutputDescriptor(1, 96, 27, 27);
+        pooling1.SetOutputDescriptor(1, 64, 56, 56);
         pooling1.AllocateMemory();
         pooling1.Forward();
         pooling1.Free();
-
+        */
+        
+        /*
         // Convolution Layer 3
         ConvolutionLayer convolution2(cudnn, pooling1.GetOutputData());
         convolution2.SetInputDescriptor(1, 96, 27, 27);
@@ -139,6 +153,7 @@ int main() {
         pooling3.Forward();
         pooling3.Free();
         printf("\n");
+        */
     }
 
      // Cleanup

@@ -9,17 +9,16 @@ BatchNorm::BatchNorm(cudnnHandle_t handle, float* data): handle(handle), input_d
 void BatchNorm::SetScaleAndBias() {
     bn_scale = (float*) malloc(input_c * sizeof(float));
     bn_bias = (float*) malloc(input_c * sizeof(float));
+    CUDA_CALL(cudaMalloc(&d_bn_scale, input_c * sizeof(float)));
+    CUDA_CALL(cudaMalloc(&d_bn_bias, input_c * sizeof(float)));
 
     for(int i = 0; i < input_c; i++) {
         bn_scale[i] = 1;
         bn_bias[i] = 0;
     }
 
-    cudaMemcpy(d_bn_scale, bn_scale, input_c * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_bn_bias, bn_bias, input_c * sizeof(float), cudaMemcpyHostToDevice);
-    
-    free(bn_scale);
-    free(bn_bias);
+    CUDA_CALL(cudaMemcpy(d_bn_scale, bn_scale, input_c * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CALL(cudaMemcpy(d_bn_bias, bn_bias, input_c * sizeof(float), cudaMemcpyHostToDevice));
 }
 
 void BatchNorm::SetInputDescriptor(int N, int C, int H, int W) {
@@ -38,7 +37,7 @@ void BatchNorm::SetInputDescriptor(int N, int C, int H, int W) {
     #endif
 }
 
-void BatchNorm::SetBatchNormDescriptor(int N, int C, int H, int W) {
+void BatchNorm::SetBatchNormDescriptor() {
     CUDNN_CALL(cudnnSetTensor4dDescriptor(batch_norm_descriptor, 
                                           CUDNN_TENSOR_NCHW, 
                                           CUDNN_DATA_FLOAT,
@@ -66,7 +65,7 @@ void BatchNorm::Forward() {
     cudaEventCreate(&stop);
     
     cudaEventRecord(start);
-    cudnnBatchNormalizationForwardInference(
+    CUDNN_CALL(cudnnBatchNormalizationForwardInference(
         handle,
         CUDNN_BATCHNORM_SPATIAL, /*cudnnBatchNormMode_t mode*/
         &alpha,
@@ -81,7 +80,7 @@ void BatchNorm::Forward() {
         &estimated_mean,
         &estimated_variance,
         epsilon
-    );
+    ));
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
 
@@ -94,4 +93,10 @@ void BatchNorm::Forward() {
 void BatchNorm::Free() {
     CUDA_CALL(cudaFree(d_bn_scale));
     CUDA_CALL(cudaFree(d_bn_bias));
+    free(bn_scale);
+    free(bn_bias);
+
+    CUDNN_CALL(cudnnDestroyTensorDescriptor(input_descriptor));
+    CUDNN_CALL(cudnnDestroyTensorDescriptor(batch_norm_descriptor));
+    CUDNN_CALL(cudnnDestroyTensorDescriptor(output_descriptor));
 }
