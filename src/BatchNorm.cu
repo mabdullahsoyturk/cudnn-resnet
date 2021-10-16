@@ -102,7 +102,6 @@ void BatchNorm::Free() {
     CUDA_CALL(cudaFree(d_bn_bias));
     CUDA_CALL(cudaFree(estimated_mean));
     CUDA_CALL(cudaFree(estimated_variance));
-    CUDA_CALL(cudaFree(input_data));
     free(bn_scale);
     free(bn_bias);
 

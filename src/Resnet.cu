@@ -41,10 +41,9 @@ int main() {
         batch_norm1.SetScaleAndBias();
         batch_norm1.Forward();
         batch_norm1.Free();
-        /*
 
          // ReLU 1
-        RELU relu1(cudnn, convolution1.GetOutputData());
+        RELU relu1(cudnn, batch_norm1.GetOutputData());
         relu1.SetInputDescriptor(1, 64, 112, 112);
         relu1.Forward();
         relu1.Free();
@@ -52,13 +51,12 @@ int main() {
         // Pooling Layer 1
         PoolingLayer pooling1(cudnn);
         pooling1.SetInputDescriptor(1, 64, 112, 112);
-        pooling1.SetInputData(convolution1.GetOutputData());
+        pooling1.SetInputData(batch_norm1.GetOutputData());
         pooling1.SetPoolingDescriptor(3, 3, 2, 2);
         pooling1.SetOutputDescriptor(1, 64, 56, 56);
         pooling1.AllocateMemory();
         pooling1.Forward();
         pooling1.Free();
-        */
         
         /*
         // Convolution Layer 3
