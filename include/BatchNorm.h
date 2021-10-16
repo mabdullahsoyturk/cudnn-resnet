@@ -17,11 +17,8 @@ class BatchNorm {
 
         int input_n, input_c, input_h, input_w;
 
-        const float alpha = 1.f;
-        const float beta = 0.f;
-
-        const float estimated_mean = 1.f;
-        const float estimated_variance = 0.f;
+        float* estimated_mean;
+        float* estimated_variance;
         const double epsilon = 0.0001;
 
         float* bn_scale;

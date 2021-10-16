@@ -9,8 +9,8 @@ BatchNorm::BatchNorm(cudnnHandle_t handle, float* data): handle(handle), input_d
 void BatchNorm::SetScaleAndBias() {
     bn_scale = (float*) malloc(input_c * sizeof(float));
     bn_bias = (float*) malloc(input_c * sizeof(float));
-    CUDA_CALL(cudaMalloc(&d_bn_scale, input_c * sizeof(float)));
-    CUDA_CALL(cudaMalloc(&d_bn_bias, input_c * sizeof(float)));
+    CUDA_CALL(cudaMalloc((void**)&d_bn_scale, input_c * sizeof(float)));
+    CUDA_CALL(cudaMalloc((void**)&d_bn_bias, input_c * sizeof(float)));
 
     for(int i = 0; i < input_c; i++) {
         bn_scale[i] = 1;
@@ -53,6 +53,10 @@ void BatchNorm::SetOutputDescriptor() {
     #if DEBUG
     printf("Batch Norm Output Shape (NCHW) => N: %d, C: %d, H: %d, W: %d\n", input_n, input_c, input_h, input_w);
     #endif
+
+    CUDA_CALL(cudaMalloc(&estimated_mean, input_n * input_c * input_h * input_w * sizeof(float)));
+    CUDA_CALL(cudaMalloc(&estimated_variance, input_n * input_c * input_h * input_w * sizeof(float)));
+    CUDA_CALL(cudaMalloc(&output_data, input_n * input_c * input_h * input_w * sizeof(float)));
 }
 
 float* BatchNorm::GetOutputData() {
@@ -60,6 +64,9 @@ float* BatchNorm::GetOutputData() {
 }
 
 void BatchNorm::Forward() {
+    float one = 1;
+    float zero = 0;
+
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
@@ -68,17 +75,17 @@ void BatchNorm::Forward() {
     CUDNN_CALL(cudnnBatchNormalizationForwardInference(
         handle,
         CUDNN_BATCHNORM_SPATIAL, /*cudnnBatchNormMode_t mode*/
-        &alpha,
-        &beta,
+        &one,
+        &zero,
         input_descriptor,/*const cudnnTensorDescriptor_t xDesc*/
         input_data,/*const void *x*/
         output_descriptor,/*const cudnnTensorDescriptor_t yDesc*/
-        input_data, /*void *y*/
+        output_data, /*void *y*/
         batch_norm_descriptor,/*const cudnnTensorDescriptor_t bnScaleBiasMeanVarDesc*/
         d_bn_scale,
         d_bn_bias,
-        &estimated_mean,
-        &estimated_variance,
+        estimated_mean,
+        estimated_variance,
         epsilon
     ));
     cudaEventRecord(stop);
@@ -93,6 +100,9 @@ void BatchNorm::Forward() {
 void BatchNorm::Free() {
     CUDA_CALL(cudaFree(d_bn_scale));
     CUDA_CALL(cudaFree(d_bn_bias));
+    CUDA_CALL(cudaFree(estimated_mean));
+    CUDA_CALL(cudaFree(estimated_variance));
+    CUDA_CALL(cudaFree(input_data));
     free(bn_scale);
     free(bn_bias);
 

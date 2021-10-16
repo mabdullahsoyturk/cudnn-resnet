@@ -8,7 +8,7 @@
 #define IMAGE_H 224
 #define IMAGE_W 224
 
-#define ITERATIONS 10000
+#define ITERATIONS 10
 
 int main() {
     cudnnHandle_t cudnn;
@@ -152,8 +152,8 @@ int main() {
         pooling3.AllocateMemory();
         pooling3.Forward();
         pooling3.Free();
-        printf("\n");
         */
+        printf("\n");
     }
 
      // Cleanup
