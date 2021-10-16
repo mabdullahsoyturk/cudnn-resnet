@@ -1,5 +1,7 @@
 #include "ConvolutionLayer.h"
 
+ConvolutionLayer::ConvolutionLayer() {}
+
 ConvolutionLayer::ConvolutionLayer(cudnnHandle_t handle, float* data): handle(handle), input_data(data) {
     CUDNN_CALL(cudnnCreateTensorDescriptor(&input_descriptor));
     CUDNN_CALL(cudnnCreateFilterDescriptor(&filter_descriptor));

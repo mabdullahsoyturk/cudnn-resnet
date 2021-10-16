@@ -1,5 +1,7 @@
 #include "PoolingLayer.h"
 
+PoolingLayer::PoolingLayer() {}
+
 PoolingLayer::PoolingLayer(cudnnHandle_t handle): handle(handle) {
     CUDNN_CALL(cudnnCreateTensorDescriptor(&input_descriptor))
     CUDNN_CALL(cudnnCreatePoolingDescriptor(&pooling_descriptor));
@@ -36,8 +38,8 @@ void PoolingLayer::SetPoolingDescriptor(int window_H, int window_W, int stride_V
                                            CUDNN_NOT_PROPAGATE_NAN,
                                            window_height,
                                            window_width,
-                                           /*Pad H*/0,
-                                           /*Pad W*/0,
+                                           /*Pad H*/1,
+                                           /*Pad W*/1,
                                            stride_vertical,
                                            stride_horizontal));
 }

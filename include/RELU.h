@@ -17,6 +17,7 @@ class RELU {
         
         float* input_data;
 
+        RELU();
         RELU(cudnnHandle_t handle, float* data);
 
         void SetInputDescriptor(int N, int C, int H, int W);

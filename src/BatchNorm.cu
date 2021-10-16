@@ -1,5 +1,7 @@
 #include "BatchNorm.h"
 
+BatchNorm::BatchNorm() {}
+
 BatchNorm::BatchNorm(cudnnHandle_t handle, float* data): handle(handle), input_data(data) {
     CUDNN_CALL(cudnnCreateTensorDescriptor(&input_descriptor));
     CUDNN_CALL(cudnnCreateTensorDescriptor(&batch_norm_descriptor));

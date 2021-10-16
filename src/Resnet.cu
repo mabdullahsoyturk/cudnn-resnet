@@ -2,6 +2,7 @@
 #include "PoolingLayer.h"
 #include "BatchNorm.h"
 #include "RELU.h"
+#include "Block.h"
 
 #define IMAGE_N 1
 #define IMAGE_C 3
@@ -20,6 +21,8 @@ int main() {
         fill_constant<<<IMAGE_W * IMAGE_H, IMAGE_N * IMAGE_C>>>(input_data, 1.f);
         cudaDeviceSynchronize();
 
+
+        ///////////////////////////////////////////// FIRST LAYER OF RESNET18 /////////////////////////////////////////////
         // Convolution Layer 1
         ConvolutionLayer convolution1(cudnn, input_data);
         convolution1.SetInputDescriptor(IMAGE_N, IMAGE_C, IMAGE_H, IMAGE_W);
@@ -57,7 +60,21 @@ int main() {
         pooling1.AllocateMemory();
         pooling1.Forward();
         pooling1.Free();
-        
+
+        ///////////////////////////////////////////// START OF BOTTLENECK BLOCKS /////////////////////////////////////////////
+
+        ///////////////////////////////////////////// FIRST BLOCK /////////////////////////////////////////////
+        Block block1(cudnn, pooling1.GetOutputData(), 1, 64, 56, 56);
+
+        ///////////////////////////////////////////// SECOND BLOCK /////////////////////////////////////////////
+        Block block2(cudnn, block1.GetOutputData(), 1, 64, 28, 28);
+
+        ///////////////////////////////////////////// THIRD BLOCK /////////////////////////////////////////////
+        Block block3(cudnn, block2.GetOutputData(), 1, 128, 14, 14);
+
+        ///////////////////////////////////////////// FOURTH BLOCK /////////////////////////////////////////////
+        Block block4(cudnn, block3.GetOutputData(), 1, 256, 7, 7);
+
         /*
         // Convolution Layer 3
         ConvolutionLayer convolution2(cudnn, pooling1.GetOutputData());

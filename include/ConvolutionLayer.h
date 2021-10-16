@@ -31,6 +31,7 @@ class ConvolutionLayer {
         float *filter_data;
         float *output_data;
 
+        ConvolutionLayer();
         ConvolutionLayer(cudnnHandle_t handle, float* data);
         void SetInputDescriptor(int N, int C, int H, int W);
         void SetFilterDescriptor(int N, int C, int H, int W);

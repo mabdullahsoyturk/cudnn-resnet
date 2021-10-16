@@ -26,6 +26,7 @@ class BatchNorm {
         float* d_bn_scale;
         float* d_bn_bias;
 
+        BatchNorm();
         BatchNorm(cudnnHandle_t handle, float* data);
 
         void SetInputDescriptor(int N, int C, int H, int W);

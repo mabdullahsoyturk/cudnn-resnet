@@ -22,6 +22,7 @@ class PoolingLayer {
         const float alpha = 1.f;
         const float beta = 0.f;
 
+        PoolingLayer();
         PoolingLayer(cudnnHandle_t handle);
 
         void SetInputDescriptor(int N, int C, int H, int W);

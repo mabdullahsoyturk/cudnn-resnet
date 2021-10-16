@@ -1,5 +1,7 @@
 #include "RELU.h"
 
+RELU::RELU() {}
+
 RELU::RELU(cudnnHandle_t handle, float *data) : 
         handle(handle), input_data(data) {
     
