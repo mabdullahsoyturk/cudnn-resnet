@@ -12,9 +12,6 @@ class RELU {
         int input_n, input_c, input_h, input_w;
         int output_n, output_c, output_h, output_w;
 
-        const float alpha = 1.f;
-        const float beta = 0.f;
-        
         float* input_data;
 
         RELU();

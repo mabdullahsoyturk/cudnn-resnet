@@ -4,24 +4,17 @@
 #include "RELU.h"
 
 class Block {
-    /*ConvolutionLayer conv1;
-    BatchNorm batch_norm1;
-    RELU relu1;
-    
-    ConvolutionLayer conv2;
-    BatchNorm batch_norm2;
-    RELU relu2;
-
-    RELU relu3;*/
-
     cudnnHandle_t handle;
     float* input_data;
     float* output_data;
+    float* identity_data;
     
     int input_n, input_c, input_h, input_w;
+    int stride;
+    int intermediate_c;
 
     public:
-        Block(cudnnHandle_t handle, float* data, int N, int C, int H, int W);
+        Block(cudnnHandle_t handle, float* data, int N, int C, int H, int W, int intermediate_channels, int stride);
     
     float* GetOutputData();
     void Forward();

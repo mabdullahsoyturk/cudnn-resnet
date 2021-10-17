@@ -21,5 +21,7 @@
 }
 
 __global__ void fill_constant(float *px, float k);
+__global__ void add_identity(float* orig, float* identity, int size);
+__global__ void copy(float* in, float* out, int size);
 
 void print(const float *data, int n, int c, int h, int w);

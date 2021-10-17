@@ -86,7 +86,9 @@ void PoolingLayer::Forward() {
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
 
+    #if !DEBUG
     printf("%f,", milliseconds);
+    #endif
 }
 
 void PoolingLayer::Free() {

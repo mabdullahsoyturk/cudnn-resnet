@@ -100,7 +100,7 @@ void ConvolutionLayer::AllocateMemory() {
     CUDA_CALL(cudaMalloc(&filter_data, filter_n * filter_c * filter_h * filter_w * sizeof(float)));
     CUDA_CALL(cudaMalloc(&output_data, output_n * output_c * output_h * output_w * sizeof(float)));
 
-    fill_constant<<<filter_w * filter_h, filter_n * filter_c>>>(filter_data, 1.f);
+    fill_constant<<<filter_w * filter_h, filter_n * filter_c>>>(filter_data, 3.f);
     cudaDeviceSynchronize();
 }
 
@@ -135,7 +135,9 @@ void ConvolutionLayer::Forward() {
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
 
+    #if !DEBUG
     printf("%f,", milliseconds);
+    #endif
 }
 
 void ConvolutionLayer::Free() {

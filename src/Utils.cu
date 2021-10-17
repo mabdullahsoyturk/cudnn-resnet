@@ -5,6 +5,22 @@ __global__ void fill_constant(float *px, float k) {
     px[tid] = k; 
 }
 
+__global__ void add_identity(float* orig, float* identity, int size) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(tid < size) {
+        orig[tid] += identity[tid];
+    } 
+}
+
+__global__ void copy(float* in, float* out, int size) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(tid < size) {
+        out[tid] = in[tid];
+    }
+}
+
 void print(const float *data, int n, int c, int h, int w) {
     std::vector<float> buffer(1 << 20);
     CUDA_CALL(cudaMemcpy(buffer.data(), data, n * c * h * w * sizeof(float), cudaMemcpyDeviceToHost));

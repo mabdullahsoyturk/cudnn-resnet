@@ -43,6 +43,9 @@ void RELU::SetOutputDescriptor() {
 }
 
 void RELU::Forward() {
+    float one = 1;
+    float zero = 0;
+
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
@@ -50,10 +53,10 @@ void RELU::Forward() {
     cudaEventRecord(start);
     CUDNN_CALL(cudnnActivationForward(handle,
                                       activation_descriptor,
-                                      &alpha,
+                                      &one,
                                       input_descriptor,
                                       input_data,
-                                      &beta,
+                                      &zero,
                                       input_descriptor,
                                       input_data));
     cudaEventRecord(stop);
@@ -61,9 +64,10 @@ void RELU::Forward() {
 
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
-
+        
+    #if !DEBUG
     printf("%f,", milliseconds);
-    cudaDeviceSynchronize();
+    #endif
 }
 
 void RELU::Free() {
